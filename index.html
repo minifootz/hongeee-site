@@ -5,30 +5,34 @@
         <title>Feelin' Hungry?</title>
         <style>
             body {
-                background-image: url("aldi.jpg");
+                background-image: url("driftveil.gif");
                 background-repeat: no-repeat;
                 background-attachment: fixed;
                 background-size: cover;
+                margin: 0;
+                padding: 0;
             }
-            
+
             .image-container {
                 display: flex;
-                flex-wrap: wrap;
                 justify-content: center;
+                align-items: center;
                 margin-top: 250px;
+                position: relative; /* Make the container relative for positioning the child images */
             }
-            
+
             .image-container img {
                 width: 750px;
                 height: 750px;
                 margin: 10px;
             }
 
-             .large-image {
+            .large-image {
                 width: 1000px; /* Larger size */
                 height: 1000px;
-                display: block;
-                margin: 20px auto; /* Centers it */
+                z-index: 10; /* Bring to the front */
+                position: relative; /* Allows z-index to work */
+                margin-left: -100px; /* Adjust position to bring it closer */
             }
 
             h1 {
@@ -36,6 +40,7 @@
                 font-size: 3rem;
                 color: white;
                 text-shadow: 2px 2px 5px black;
+                margin-top: 50px;
             }
         </style>
     </head>
@@ -45,9 +50,9 @@
         <div class="image-container">
             <img src="driftveil.gif" alt="Image 1">
             <img src="driftveil.gif" alt="Image 2">
-
+            <!-- Larger GIF in the same row -->
             <img src="driftveil.gif" alt="Big Image" class="large-image">
-        
         </div>
+        
     </body>
 </html>
