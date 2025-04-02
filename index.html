@@ -11,33 +11,37 @@
                 background-size: cover;
                 margin: 0;
                 padding: 0;
+                overflow: hidden; /* Prevent scrolling */
             }
 
             .image-container {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                margin-top: 250px;
-                position: relative; /* Make the container relative for positioning the child images */
+                margin-top: 10vh; /* Top margin proportional to screen height */
+                position: relative;
+                width: 100%;
+                height: 80vh; /* Keep the container's height to 80% of the viewport */
+                overflow: hidden; /* Prevent overflow in the container */
             }
 
             .image-container img {
-                width: 750px;
-                height: 750px;
+                width: 30vw; /* 30% of the viewport width */
+                height: auto; /* Keep aspect ratio intact */
                 margin: 10px;
             }
 
             .large-image {
-                width: 1000px; /* Larger size */
-                height: 1000px;
-                z-index: 10; /* Bring to the front */
+                width: 40vw; /* 40% of the viewport width for the larger image */
+                height: auto;
+                z-index: 10; /* Bring it to the front */
                 position: relative; /* Allows z-index to work */
-                margin-left: -100px; /* Adjust position to bring it closer */
+                margin-left: -20px; /* Adjust position slightly */
             }
 
             h1 {
                 text-align: center;
-                font-size: 3rem;
+                font-size: 5vw; /* Responsive font size */
                 color: white;
                 text-shadow: 2px 2px 5px black;
                 margin-top: 50px;
