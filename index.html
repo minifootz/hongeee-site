@@ -25,19 +25,21 @@
                 position: fixed;
                 top: 0;
                 left: 0;
-                width: 1000vw;
-                height: 1000vh;
+                width: 100vw; /* Full width of the viewport */
+                height: 100vh; /* Full height of the viewport */
                 background: black;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 z-index: 1000;
-                display: none;
+                display: none; /* Initially hidden */
             }
             #fullscreen-gif img {
-                max-width: 100%;
-                max-height: 100%;
+                width: 100%; /* Make the image cover the full width */
+                height: 100%; /* Make the image cover the full height */
+                object-fit: cover; /* Ensure the image covers the entire area, with cropping if needed */
             }
+
             #bg-music {
                 position: fixed;
                 bottom: 20px;
