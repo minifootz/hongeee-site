@@ -50,6 +50,19 @@
                 border-radius: 10px;
             }
 
+            #timer {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                font-size: 2vw;
+                color: white;
+                background-color: rgba(0, 0, 0, 0.6);
+                padding: 10px 20px;
+                border-radius: 10px;
+                box-shadow: 4px 4px 20px black;
+                z-index: 9999;
+            }
+
             body {
                 background-image: url("apark.jpeg");
                 background-repeat: no-repeat;
@@ -100,6 +113,36 @@
         <audio id="bg-music" autoplay loop>
             <source src="Swing Machine Kevin MacLeod.mp3" type="audio/mpeg">
         </audio>
+        <script>
+            const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
+            window.speechSynthesis.speak(speech);
+        </script>
+
+        <div id="timer">Time Dancing: 0s</div>
+
+        <script>
+            document.getElementById("feed-button").addEventListener("click", function() {
+                let gif = document.getElementById("fullscreen-gif");
+                gif.style.display = "flex"; // Show the full-screen GIF
+
+                // Hide the GIF after 3 seconds
+                setTimeout(() => {
+                    gif.style.display = "none"; // Hide the GIF after it plays
+                }, 3000); // 3 seconds
+            });
+
+            // Timer Logic
+            const startTime = Date.now(); // Store the start time when the page is loaded
+            const timerElement = document.getElementById("timer");
+
+            function updateTimer() {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000); // Time in seconds
+                timerElement.textContent = `Time Dancing: ${elapsedTime}s`; // Update the timer display
+            }
+
+            setInterval(updateTimer, 1000); // Update the timer every second
+        </script>
+
 
         <div class="image-container">
             <img src="driftveil.gif" alt="Image 1">
