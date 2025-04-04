@@ -20,7 +20,6 @@
                 border-radius: 10px;
             }
 
-
             #fullscreen-gif {
                 position: fixed;
                 top: 0;
@@ -63,7 +62,6 @@
                 box-shadow: 4px 4px 20px black;
                 z-index: 9999;
             }
-
 
             body {
                 background-image: url("apark.jpeg");
@@ -123,7 +121,21 @@
 
         <div id="timer">Time Dancing: 0s</div>
 
+        <div class="image-container">
+            <img src="driftveil.gif" alt="Image 1">
+            <img src="driftveil.gif" alt="Image 2">
+            <img src="driftveil.gif" alt="Big Image" class="large-image">
+        </div>
+
+        <!-- Feed me button -->
+        <button id="feed-button">FEED ME!</button>    
+
+        <div id="fullscreen-gif">
+            <img src="thootless-scream.gif" alt="Feeding Time!">
+        </div>
+
         <script>
+            // Feed me button click event
             document.getElementById("feed-button").addEventListener("click", function() {
                 let gif = document.getElementById("fullscreen-gif");
                 gif.style.display = "flex"; // Show the full-screen GIF
@@ -144,30 +156,6 @@
             }
 
             setInterval(updateTimer, 1000); // Update the timer every second
-        </script>
-
-
-        <div class="image-container">
-            <img src="driftveil.gif" alt="Image 1">
-            <img src="driftveil.gif" alt="Image 2">
-            <img src="driftveil.gif" alt="Big Image" class="large-image">
-        </div>
-
-        <button id="feed-button">FEED ME!</button>    
-        <div id="fullscreen-gif">
-            <img src="thootless-scream.gif" alt="Feeding Time!">
-        </div>
-
-        <script>
-            document.getElementById("feed-button").addEventListener("click", function() {
-                let gif = document.getElementById("fullscreen-gif");
-                gif.style.display = "flex"; // Show the full-screen GIF
-
-                // Hide the GIF after 3 seconds
-                setTimeout(() => {
-                    gif.style.display = "none"; // Hide the GIF after it plays
-                }, 3000); // 3 seconds
-            });
         </script>
     </body>
 </html>
