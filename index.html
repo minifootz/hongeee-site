@@ -147,15 +147,17 @@
             });
 
             // Timer Logic
-            const startTime = Date.now(); // Store the start time when the page is loaded
+            // Timer Logic\
+            const startTime = new Date('2025-04-02T14:00:00').getTime(); // Set the start time to 2pm on April 2nd, 2025
             const timerElement = document.getElementById("timer");
-
+            
             function updateTimer() {
                 const elapsedTime = Math.floor((Date.now() - startTime) / 1000); // Time in seconds
                 timerElement.textContent = `Time Dancing: ${elapsedTime}s`; // Update the timer display
             }
-
+            
             setInterval(updateTimer, 1000); // Update the timer every second
+
         </script>
     </body>
 </html>
