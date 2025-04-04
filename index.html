@@ -115,8 +115,20 @@
         </audio>
 
         <script>
-            const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
-            window.speechSynthesis.speak(speech);
+            window.addEventListener('DOMContentLoaded', (event) => {
+                // Ensure speech synthesis is supported
+                if ('speechSynthesis' in window) {
+                    const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
+                    speechSynthesis.speak(speech); // Speak the message
+
+                    // Optionally handle when speech ends
+                    speech.onend = function(event) {
+                        console.log("Speech has finished.");
+                    };
+                } else {
+                    console.log("Speech synthesis is not supported in this browser.");
+                }
+            });
         </script>
 
         <div id="timer">Time Dancing: 0s</div>
