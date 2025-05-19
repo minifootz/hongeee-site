@@ -25,3 +25,19 @@ document.getElementById('play-audio').addEventListener('click', function() {
     const audio = document.getElementById('bg-music');
     audio.play(); // Play audio when the button is clicked
 });
+
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    // Ensure speech synthesis is supported
+    if ('speechSynthesis' in window) {
+        const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
+        speechSynthesis.speak(speech); // Speak the message
+
+        // Optionally handle when speech ends
+        speech.onend = function(event) {
+            console.log("Speech has finished.");
+        };
+    } else {
+        console.log("Speech synthesis is not supported in this browser.");
+    }
+});
