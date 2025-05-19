@@ -246,6 +246,14 @@ document.getElementById("feed-button").addEventListener("click", () => {
   document.getElementById("hunger-bar").style.width = hunger + "%";
 });
 
+    setInterval(() => {
+  if (hunger > 0) {
+    hunger -= 1;
+    document.getElementById("hunger-bar").style.width = hunger + "%";
+  }
+}, 1000); // decrease 1% per second
+
+
     for (let i = 0; i < 30; i++) {
   const emoji = document.createElement("div");
   emoji.textContent = "🍗";
@@ -256,6 +264,15 @@ document.getElementById("feed-button").addEventListener("click", () => {
   document.body.appendChild(emoji);
   setTimeout(() => emoji.remove(), 1000);
 }
+
+    let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
+
+document.getElementById("feed-button").addEventListener("click", () => {
+  personalFeeds++;
+  localStorage.setItem("myFeeds", personalFeeds);
+  console.log("You fed", personalFeeds, "times!");
+});
+
 
   </script>
 </body>
