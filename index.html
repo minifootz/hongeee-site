@@ -197,43 +197,35 @@
                 audio.play(); // Play audio when the button is clicked
             });
         </script>
+
         <script>
     const counterDisplay = document.getElementById("feed-counter");
+    const namespace = "hongree-feeder"; // Can be anything unique
+    const key = "feed-me";              // The specific counter name
 
-    async function updateCounterDisplay() {
+    async function updateFeedCounter() {
         try {
-            const res = await fetch('http://localhost:3000/counter');
+            const res = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
             const data = await res.json();
-            counterDisplay.textContent = `Total Feeds: ${data.count}`;
-        } catch (err) {
+            counterDisplay.textContent = `Total Feeds: ${data.value}`;
+        } catch (e) {
             counterDisplay.textContent = "Total Feeds: Error";
         }
     }
 
-    document.getElementById("feed-button").addEventListener("click", async () => {
+    document.getElementById("feed-button").addEventListener("click", () => {
         const gifOverlay = document.getElementById("fullscreen-gif");
         gifOverlay.style.display = "flex";
 
-        // Call API to increment counter
-        try {
-            const res = await fetch('http://localhost:3000/counter', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            const data = await res.json();
-            counterDisplay.textContent = `Total Feeds: ${data.count}`;
-        } catch (err) {
-            counterDisplay.textContent = "Total Feeds: Error";
-        }
+        updateFeedCounter(); // Increment and show updated value
 
         setTimeout(() => {
             gifOverlay.style.display = "none";
         }, 3000);
     });
 
-    // Fetch counter on load
-    updateCounterDisplay();
+    // Load the counter value on page load
+    updateFeedCounter();
 </script>
-
     </body>
 </html>
