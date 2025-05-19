@@ -1,1 +1,58 @@
+ #feed-button {
+                position: fixed;
+                bottom: 100px; /* Distance from bottom */
+                left: 50%;
+                transform: translateX(-50%); /* Center it horizontally */
+                padding: 20px 40px;
+                font-size: 3vw;
+                background: red;
+                color: white;
+                border: none;
+                cursor: pointer;
+                box-shadow: 4px 4px 20px black;
+                z-index: 100;
+                border-radius: 10px;
+            }
 
+            #fullscreen-gif {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw; /* Full width of the viewport */
+                height: 100vh; /* Full height of the viewport */
+                background: black;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                display: none; /* Initially hidden */
+            }
+            #fullscreen-gif img {
+                width: 100%; /* Make the image cover the full width */
+                height: 100%; /* Make the image cover the full height */
+                object-fit: cover; /* Ensure the image covers the entire area, with cropping if needed */
+            }
+
+            #bg-music {
+                position: fixed;
+                bottom: 100px;
+                right: 100px;
+                z-index: 9999;
+                width: 200px;
+                height: auto;
+                border-radius: 10px;
+            }
+
+            #timer {
+                position: fixed;
+                top: 160px; /* Adjust to place it below the title */
+                left: 50%; /* Center it horizontally */
+                transform: translateX(-50%); /* Center it accurately */
+                font-size: 2vw;
+                color: white;
+                background-color: rgba(0, 0, 0, 0.6);
+                padding: 10px 20px;
+                border-radius: 10px;
+                box-shadow: 4px 4px 20px black;
+                z-index: 9999;
+            }
