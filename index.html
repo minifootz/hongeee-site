@@ -248,10 +248,10 @@ document.getElementById("feed-button").addEventListener("click", () => {
 
     setInterval(() => {
   if (hunger > 0) {
-    hunger -= 1;
+    hunger -= 0.01;
     document.getElementById("hunger-bar").style.width = hunger + "%";
   }
-}, 1000); // decrease 1% per second
+}, 100000000000000); // decrease 0.1% per second
 
 
     for (let i = 0; i < 30; i++) {
