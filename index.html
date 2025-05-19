@@ -166,6 +166,8 @@
   <div id="hunger-bar-container">
   <div id="hunger-bar"></div>
 </div>
+  <div id="hunger-label" style="position: fixed; top: 255px; left: 50%; transform: translateX(-50%); font-size: 1.2vw; color: white; z-index: 9999;">Hunger: 0%</div>
+
 
 
   <div id="feed-counter">Total Feeds: Loading...</div>
@@ -176,6 +178,11 @@
   <div id="fullscreen-gif">
     <img src="thootless-scream.gif" alt="Feeding Time!">
   </div>
+
+  <div id="personal-counter" style="position: fixed; top: 320px; left: 50%; transform: translateX(-50%); font-size: clamp(14px, 2vw, 28px); color: cyan; background-color: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 10px; box-shadow: 4px 4px 20px black; z-index: 9999;">
+  Your Feeds: 0
+</div>
+
 
   <!-- Main script -->
   <script>
@@ -272,6 +279,37 @@ document.getElementById("feed-button").addEventListener("click", () => {
   localStorage.setItem("myFeeds", personalFeeds);
   console.log("You fed", personalFeeds, "times!");
 });
+
+    const personalCounter = document.getElementById("personal-counter");
+function updatePersonalCounter() {
+  personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
+}
+updatePersonalCounter(); // on load
+
+document.getElementById("feed-button").addEventListener("click", () => {
+  personalFeeds++;
+  localStorage.setItem("myFeeds", personalFeeds);
+  updatePersonalCounter();
+});
+
+    const hungerLabel = document.getElementById("hunger-label");
+function updateHungerDisplay() {
+  hungerLabel.textContent = `Hunger: ${Math.round(hunger)}%`;
+  document.getElementById("hunger-bar").style.width = hunger + "%";
+}
+
+document.getElementById("feed-button").addEventListener("click", () => {
+  hunger = Math.min(100, hunger + 10);
+  updateHungerDisplay();
+});
+
+setInterval(() => {
+  if (hunger > 0) {
+    hunger = Math.max(0, hunger - 0.1); // real-time decay
+    updateHungerDisplay();
+  }
+}, 100); // smooth drop every 100ms
+
 
 
   </script>
