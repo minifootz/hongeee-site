@@ -5,6 +5,20 @@
         <meta charset="utf-8">
         <title>Feelin' Hungry?</title>
         <style>
+            #feed-counter {
+                position: fixed;
+                top: 220px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: clamp(16px, 2vw, 32px);
+                color: yellow;
+                background-color: rgba(0, 0, 0, 0.6);
+                padding: 10px 20px;
+                border-radius: 10px;
+                box-shadow: 4px 4px 20px black;
+                z-index: 9999;
+            }
+
             #feed-button {
                 position: fixed;
                 bottom: 100px; /* Distance from bottom */
@@ -139,6 +153,8 @@
             <img src="driftveil.gif" alt="Image 2">
             <img src="driftveil.gif" alt="Big Image" class="large-image">
         </div>
+        <div id="feed-counter">Total Feeds: Loading...</div>
+
 
         <!-- Feed me button -->
         <button id="feed-button">FEED ME!</button>  
@@ -181,5 +197,43 @@
                 audio.play(); // Play audio when the button is clicked
             });
         </script>
+        <script>
+    const counterDisplay = document.getElementById("feed-counter");
+
+    async function updateCounterDisplay() {
+        try {
+            const res = await fetch('http://localhost:3000/counter');
+            const data = await res.json();
+            counterDisplay.textContent = `Total Feeds: ${data.count}`;
+        } catch (err) {
+            counterDisplay.textContent = "Total Feeds: Error";
+        }
+    }
+
+    document.getElementById("feed-button").addEventListener("click", async () => {
+        const gifOverlay = document.getElementById("fullscreen-gif");
+        gifOverlay.style.display = "flex";
+
+        // Call API to increment counter
+        try {
+            const res = await fetch('http://localhost:3000/counter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            counterDisplay.textContent = `Total Feeds: ${data.count}`;
+        } catch (err) {
+            counterDisplay.textContent = "Total Feeds: Error";
+        }
+
+        setTimeout(() => {
+            gifOverlay.style.display = "none";
+        }, 3000);
+    });
+
+    // Fetch counter on load
+    updateCounterDisplay();
+</script>
+
     </body>
 </html>
