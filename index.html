@@ -275,24 +275,25 @@ document.getElementById("feed-button").addEventListener("click", () => {
   setTimeout(() => emoji.remove(), 1000);
 }
 
-    let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
+ // Initialize personalFeeds from localStorage
+let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
 
-document.getElementById("feed-button").addEventListener("click", () => {
-  personalFeeds+;
-  localStorage.setItem("myFeeds", personalFeeds);
-  console.log("You fed", personalFeeds, "times!");
-});
+// Get the counter element
+const personalCounter = document.getElementById("personal-counter");
 
-    const personalCounter = document.getElementById("personal-counter");
+// Function to update the counter display
 function updatePersonalCounter() {
   personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
 }
-updatePersonalCounter(); // on load
 
+// Initial update on page load
+updatePersonalCounter();
+
+// Set a single event listener on the feed button
 document.getElementById("feed-button").addEventListener("click", () => {
-  personalFeeds++;
+  personalFeeds += 1; // Proper increment
   localStorage.setItem("myFeeds", personalFeeds);
-  updatePersonalCounter();
+  updatePersonalCounter(); // Update the display
 });
 
     const hungerLabel = document.getElementById("hunger-label");
