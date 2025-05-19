@@ -18,6 +18,13 @@
                 z-index: 9999;
             }
 
+    #feed-button {
+  min-width: 200px;
+  min-height: 80px;
+  font-size: clamp(24px, 5vw, 40px);
+}
+
+
             #feed-button {
                 position: fixed;
                 bottom: 100px; /* Distance from bottom */
@@ -77,6 +84,27 @@
                 z-index: 9999;
             }
 
+    #hunger-bar-container {
+  position: fixed;
+  top: 280px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+#hunger-bar {
+  height: 100%;
+  background: limegreen;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+
             body {
                 background-image: url("apark.jpeg");
                 background-repeat: no-repeat;
@@ -135,6 +163,10 @@
     <img src="driftveil.gif" alt="Image 2">
     <img src="driftveil.gif" alt="Big Image" class="large-image">
   </div>
+  <div id="hunger-bar-container">
+  <div id="hunger-bar"></div>
+</div>
+
 
   <div id="feed-counter">Total Feeds: Loading...</div>
 
@@ -207,6 +239,24 @@
         console.error("Initial feed counter error:", e);
       }
     });
+
+    let hunger = 0;
+document.getElementById("feed-button").addEventListener("click", () => {
+  hunger = Math.min(100, hunger + 10);
+  document.getElementById("hunger-bar").style.width = hunger + "%";
+});
+
+    for (let i = 0; i < 30; i++) {
+  const emoji = document.createElement("div");
+  emoji.textContent = "🍗";
+  emoji.style.position = "fixed";
+  emoji.style.left = Math.random() * window.innerWidth + "px";
+  emoji.style.top = Math.random() * window.innerHeight + "px";
+  emoji.style.fontSize = "2rem";
+  document.body.appendChild(emoji);
+  setTimeout(() => emoji.remove(), 1000);
+}
+
   </script>
 </body>
 </html>
