@@ -186,167 +186,122 @@ h1 {
 
 
   <!-- Main script -->
-  <script>
-    // Speech
-    window.addEventListener('DOMContentLoaded', () => {
-      if ('speechSynthesis' in window) {
-        const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
-        speechSynthesis.speak(speech);
-      }
-    });
+ <script>
+  let hunger = 0;
+  let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
+  const hungerLabel = document.getElementById("hunger-label");
+  const personalCounter = document.getElementById("personal-counter");
+  const counterDisplay = document.getElementById("feed-counter");
+  const namespace = "hongree-feeder";
+  const key = "feed-me";
 
-    // Timer logic
-    const startTime = new Date('2025-04-02T14:00:00').getTime();
-    const timerElement = document.getElementById("timer");
-
-    function updateTimer() {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      timerElement.textContent = `Time Dancing: ${elapsed}s`;
+  // Speech on load
+  window.addEventListener('DOMContentLoaded', () => {
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
+      speechSynthesis.speak(speech);
     }
-    setInterval(updateTimer, 1000);
+  });
 
-    // Audio play
-    document.getElementById('play-audio').addEventListener('click', () => {
-      document.getElementById('bg-music').play();
-    });
+  // Timer
+  const startTime = new Date('2025-04-02T14:00:00').getTime();
+  const timerElement = document.getElementById("timer");
+  setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    timerElement.textContent = `Time Dancing: ${elapsed}s`;
+  }, 1000);
 
-    // Shared counter
-    const counterDisplay = document.getElementById("feed-counter");
-    const namespace = "hongree-feeder";
-    const key = "feed-me";
+  // Music button
+  document.getElementById('play-audio').addEventListener('click', () => {
+    document.getElementById('bg-music').play();
+  });
 
-    async function updateFeedCounter() {
-      try {
-        const res = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
-        const data = await res.json();
-        counterDisplay.textContent = `Total Feeds: ${data.value}`;
-      } catch (e) {
-        counterDisplay.textContent = "Total Feeds: Error";
-        console.error("Feed counter error:", e);
-      }
+  // Global counter
+  async function updateFeedCounter() {
+    try {
+      const res = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+      const data = await res.json();
+      counterDisplay.textContent = `Total Feeds: ${data.value}`;
+    } catch (e) {
+      counterDisplay.textContent = "Total Feeds: Error";
+      console.error("Feed counter error:", e);
     }
+  }
 
-    // Show GIF + increment counter
-    document.getElementById("feed-button").addEventListener("click", () => {
-      document.getElementById("fullscreen-gif").style.display = "flex";
-      updateFeedCounter();
+  async function fetchInitialCounter() {
+    try {
+      const res = await fetch(`https://api.countapi.xyz/get/${namespace}/${key}`);
+      const data = await res.json();
+      counterDisplay.textContent = `Total Feeds: ${data.value}`;
+    } catch (e) {
+      counterDisplay.textContent = "Total Feeds: Error";
+      console.error("Initial feed counter error:", e);
+    }
+  }
 
-      setTimeout(() => {
-        document.getElementById("fullscreen-gif").style.display = "none";
-      }, 3000);
-    });
+  // Update personal counter display
+  function updatePersonalCounter() {
+    personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
+  }
 
-    // On page load, just fetch the counter without incrementing
-    window.addEventListener("load", async () => {
-      try {
-        const res = await fetch(`https://api.countapi.xyz/get/${namespace}/${key}`);
-        const data = await res.json();
-        counterDisplay.textContent = `Total Feeds: ${data.value}`;
-      } catch (e) {
-        counterDisplay.textContent = "Total Feeds: Error";
-        console.error("Initial feed counter error:", e);
-      }
-    });
-
-    document.getElementById("feed-button").addEventListener("click", () => {
-  // Show fullscreen GIF
-  document.getElementById("fullscreen-gif").style.display = "flex";
-  setTimeout(() => {
-    document.getElementById("fullscreen-gif").style.display = "none";
-  }, 3000);
-
-  // Update global feed counter
-  updateFeedCounter();
-
-  // Update personal feed counter
-  personalFeeds += 1;
-  localStorage.setItem("myFeeds", personalFeeds);
-  updatePersonalCounter();
-
-  // Increase hunger
-  hunger = Math.min(100, hunger + 10);
-  updateHungerDisplay();
-
-  // Send external refresh request
-  fetch('https://2304068.win.studentwebserver.co.uk/CheshireMilitaryMuseum/')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Refresh request failed');
-      }
-      console.log('Page refresh request sent successfully');
-    })
-    .catch(error => {
-      console.error('Error refreshing external page:', error);
-    });
-});
-
-
-    let hunger = 0;
-document.getElementById("feed-button").addEventListener("click", () => {
-  hunger = Math.min(100, hunger + 10);
-  document.getElementById("hunger-bar").style.width = hunger + "%";
-});
-
-    setInterval(() => {
-  if (hunger > 0) {
-    hunger -= 0.01;
+  // Update hunger display
+  function updateHungerDisplay() {
+    hungerLabel.textContent = `Hunger: ${Math.round(hunger)}%`;
     document.getElementById("hunger-bar").style.width = hunger + "%";
   }
-}, 1000); // decrease 0.1% per second
 
-
+  // Emoji animation
+  function dropEmojis() {
     for (let i = 0; i < 30; i++) {
-  const emoji = document.createElement("div");
-  emoji.textContent = "🍗";
-  emoji.style.position = "fixed";
-  emoji.style.left = Math.random() * window.innerWidth + "px";
-  emoji.style.top = Math.random() * window.innerHeight + "px";
-  emoji.style.fontSize = "2rem";
-  document.body.appendChild(emoji);
-  setTimeout(() => emoji.remove(), 1000);
-}
-
- // Initialize personalFeeds from localStorage
-let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
-
-// Get the counter element
-const personalCounter = document.getElementById("personal-counter");
-
-// Function to update the counter display
-function updatePersonalCounter() {
-  personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
-}
-
-// Initial update on page load
-updatePersonalCounter();
-
-// Set a single event listener on the feed button
-document.getElementById("feed-button").addEventListener("click", () => {
-  personalFeeds += 1; // Proper increment
-  localStorage.setItem("myFeeds", personalFeeds);
-  updatePersonalCounter(); // Update the display
-});
-
-    const hungerLabel = document.getElementById("hunger-label");
-function updateHungerDisplay() {
-  hungerLabel.textContent = `Hunger: ${Math.round(hunger)}%`;
-  document.getElementById("hunger-bar").style.width = hunger + "%";
-}
-
-document.getElementById("feed-button").addEventListener("click", () => {
-  hunger = Math.min(100, hunger + 10);
-  updateHungerDisplay();
-});
-
-setInterval(() => {
-  if (hunger > 0) {
-    hunger = Math.max(0, hunger - 0.1); // real-time decay
-    updateHungerDisplay();
+      const emoji = document.createElement("div");
+      emoji.textContent = "🍗";
+      emoji.style.position = "fixed";
+      emoji.style.left = Math.random() * window.innerWidth + "px";
+      emoji.style.top = Math.random() * window.innerHeight + "px";
+      emoji.style.fontSize = "2rem";
+      emoji.style.zIndex = "9999";
+      document.body.appendChild(emoji);
+      setTimeout(() => emoji.remove(), 1000);
+    }
   }
-}, 100); // smooth drop every 100ms
 
+  // Feed button logic
+  document.getElementById("feed-button").addEventListener("click", () => {
+    // Show GIF
+    document.getElementById("fullscreen-gif").style.display = "flex";
+    setTimeout(() => {
+      document.getElementById("fullscreen-gif").style.display = "none";
+    }, 3000);
 
+    // Drop emojis
+    dropEmojis();
 
-  </script>
+    // Update counters
+    updateFeedCounter();
+    personalFeeds += 1;
+    localStorage.setItem("myFeeds", personalFeeds);
+    updatePersonalCounter();
+
+    // Increase hunger
+    hunger = Math.min(100, hunger + 100);
+    updateHungerDisplay();
+  });
+
+  // Hunger decay
+  setInterval(() => {
+    if (hunger > 0) {
+      hunger = Math.max(0, hunger - 0.000001);
+      updateHungerDisplay();
+    }
+  }, 100); // smooth drop
+
+  // Init on load
+  window.addEventListener("load", () => {
+    fetchInitialCounter();
+    updatePersonalCounter();
+    updateHungerDisplay();
+  });
+</script>
+
 </body>
 </html>
