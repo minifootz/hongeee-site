@@ -290,7 +290,7 @@ h1 {
   // Hunger decay
   setInterval(() => {
     if (hunger > 0) {
-      hunger = Math.max(0, hunger - 0.000001);
+      hunger = Math.max(0, hunger - 0.001);
       updateHungerDisplay();
     }
   }, 100); // smooth drop
