@@ -248,6 +248,39 @@ h1 {
       }
     });
 
+    document.getElementById("feed-button").addEventListener("click", () => {
+  // Show fullscreen GIF
+  document.getElementById("fullscreen-gif").style.display = "flex";
+  setTimeout(() => {
+    document.getElementById("fullscreen-gif").style.display = "none";
+  }, 3000);
+
+  // Update global feed counter
+  updateFeedCounter();
+
+  // Update personal feed counter
+  personalFeeds += 1;
+  localStorage.setItem("myFeeds", personalFeeds);
+  updatePersonalCounter();
+
+  // Increase hunger
+  hunger = Math.min(100, hunger + 10);
+  updateHungerDisplay();
+
+  // Send external refresh request
+  fetch('https://2304068.win.studentwebserver.co.uk/CheshireMilitaryMuseum/')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Refresh request failed');
+      }
+      console.log('Page refresh request sent successfully');
+    })
+    .catch(error => {
+      console.error('Error refreshing external page:', error);
+    });
+});
+
+
     let hunger = 0;
 document.getElementById("feed-button").addEventListener("click", () => {
   hunger = Math.min(100, hunger + 10);
