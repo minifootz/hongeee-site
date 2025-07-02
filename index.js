@@ -28,7 +28,7 @@ document.getElementById('play-audio').addEventListener('click', () => {
 // Global counter functions using YOUR BACKEND API
 async function fetchInitialCounter() {
   try {
-    const res = await fetch('http://localhost:3000/counter');
+    const res = await fetch('https://hongeee.xyz//counter');
     const data = await res.json();
     counterDisplay.textContent = `Total Feeds: ${data.count}`;
   } catch (e) {
