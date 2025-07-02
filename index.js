@@ -1,3 +1,5 @@
+const API_BASE = "https://hongeee.xyz";
+
 let hunger = 0;
 let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
 const hungerLabel = document.getElementById("hunger-label");
@@ -28,7 +30,7 @@ document.getElementById('play-audio').addEventListener('click', () => {
 // Global counter functions using YOUR BACKEND API
 async function fetchInitialCounter() {
   try {
-    const res = await fetch('https://hongeee.xyz//counter');
+    const res = await fetch(`${API_BASE}/counter`);
     const data = await res.json();
     counterDisplay.textContent = `Total Feeds: ${data.count}`;
   } catch (e) {
@@ -39,7 +41,7 @@ async function fetchInitialCounter() {
 
 async function updateFeedCounter() {
   try {
-    const res = await fetch('http://localhost:3000/counter', {
+    const res = await fetch(`${API_BASE}/counter`, {
       method: 'POST'
     });
     const data = await res.json();
