@@ -6,6 +6,7 @@ const counterDisplay = document.getElementById("feed-counter");
 const namespace = "hongree-feeder";
 const key = "feed-me";
 
+
 // Speech on load
 window.addEventListener('DOMContentLoaded', () => {
   if ('speechSynthesis' in window) {
