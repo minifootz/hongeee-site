@@ -1,79 +1,62 @@
+// server.js
+
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const sql = require('mssql');
 const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_PATH = './feeder.db';
 
-// Enable CORS - adjust origin as needed for your frontend domain
+// Enable CORS - allow requests only from your frontend domain
 app.use(cors({
-  origin: 'https://hongeee.xyz'  // allow only your frontend domain
+  origin: 'https://hongeee.xyz'  // Replace with your actual frontend domain
 }));
 
 app.use(express.json());
 
-// Connect to SQLite DB
-const db = new sqlite3.Database(DB_PATH, (err) => {
-  if (err) {
-    console.error("Failed to connect to SQLite database:", err);
-  } else {
-    console.log("Connected to SQLite database.");
+// SQL Server configuration from environment variables
+const sqlConfig = {
+  user: process.env.DB_USER,           // e.g. 'db_username'
+  password: process.env.DB_PASSWORD,   // e.g. 'db_password'
+  server: process.env.DB_SERVER,       // e.g. 'db_host_or_ip'
+  database: process.env.DB_NAME,       // e.g. 'db_name'
+  options: {
+    encrypt: true,                     // use true if your DB requires encrypted connection (Azure, etc.)
+    trustServerCertificate: true      // set to false in production if you have proper certificates
   }
-});
+};
 
-// Create the feed_counter table if it doesn't exist
-db.run(`
-  CREATE TABLE IF NOT EXISTS feed_counter (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
-    count INTEGER DEFAULT 0
-  )
-`, (err) => {
-  if (err) {
-    console.error("Error creating table:", err);
-  }
-});
-
-// Initialize row if missing
-db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err, row) => {
-  if (err) {
-    console.error("Error checking existing counter:", err);
-  } else if (!row) {
-    db.run(`INSERT INTO feed_counter (id, count) VALUES (1, 0)`, (err) => {
-      if (err) console.error("Failed to initialize counter row:", err);
-    });
-  }
-});
-
-// GET current count
-app.get('/counter', (req, res) => {
-  db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err, row) => {
-    if (err) {
-      console.error("Database read error:", err);
-      return res.status(500).json({ error: 'Database error' });
+// GET endpoint: fetch current feed count
+app.get('/counter', async (req, res) => {
+  try {
+    await sql.connect(sqlConfig);
+    const result = await sql.query`SELECT count FROM feed_counter WHERE id = 1`;
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: 'Counter record not found' });
     }
-    res.json({ count: row.count });
-  });
+    res.json({ count: result.recordset[0].count });
+  } catch (error) {
+    console.error('Error fetching count:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// POST increment count
-app.post('/counter', (req, res) => {
-  db.run(`UPDATE feed_counter SET count = count + 1 WHERE id = 1`, function(err) {
-    if (err) {
-      console.error("Database update error:", err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err2, row) => {
-      if (err2) {
-        console.error("Database read error after increment:", err2);
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.json({ count: row.count });
-    });
-  });
+// POST endpoint: increment feed count by 1
+app.post('/counter', async (req, res) => {
+  try {
+    await sql.connect(sqlConfig);
+    // Increment count
+    await sql.query`UPDATE feed_counter SET count = count + 1 WHERE id = 1`;
+    // Fetch updated count
+    const result = await sql.query`SELECT count FROM feed_counter WHERE id = 1`;
+    res.json({ count: result.recordset[0].count });
+  } catch (error) {
+    console.error('Error updating count:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// Listen on all interfaces so it's accessible externally
+// Start server, listen on all network interfaces
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`SQLite-powered Feeder API running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
