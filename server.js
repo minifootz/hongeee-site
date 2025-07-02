@@ -3,12 +3,12 @@ const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Use env PORT or default 3000
+const PORT = process.env.PORT || 3000;
 const DB_PATH = './feeder.db';
 
-// Enable CORS for your frontend domain
+// Enable CORS - adjust origin as needed for your frontend domain
 app.use(cors({
-  origin: 'https://hongeee.xyz'  // Only allow requests from your frontend domain
+  origin: 'https://hongeee.xyz'  // allow only your frontend domain
 }));
 
 app.use(express.json());
@@ -22,12 +22,13 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
   }
 });
 
-// Create table if it doesn't exist
+// Create the feed_counter table if it doesn't exist
 db.run(`
   CREATE TABLE IF NOT EXISTS feed_counter (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     count INTEGER DEFAULT 0
-)`, (err) => {
+  )
+`, (err) => {
   if (err) {
     console.error("Error creating table:", err);
   }
@@ -37,9 +38,7 @@ db.run(`
 db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err, row) => {
   if (err) {
     console.error("Error checking existing counter:", err);
-    return;
-  }
-  if (!row) {
+  } else if (!row) {
     db.run(`INSERT INTO feed_counter (id, count) VALUES (1, 0)`, (err) => {
       if (err) console.error("Failed to initialize counter row:", err);
     });
@@ -74,7 +73,7 @@ app.post('/counter', (req, res) => {
   });
 });
 
-// Listen on all interfaces (important for cloud hosting)
-app.listen(PORT, "0.0.0.0", () => {
+// Listen on all interfaces so it's accessible externally
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`SQLite-powered Feeder API running on port ${PORT}`);
 });
