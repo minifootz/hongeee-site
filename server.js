@@ -5,10 +5,15 @@ const cors = require('cors');
 const fs = require('fs');
 
 const app = express();
+
+// Use PORT from .env or default to 3000
 const PORT = process.env.PORT || 3000;
 
+// CORS configuration (adjust as needed)
 app.use(cors({
-  origin: 'https://hongeee.xyz'
+  origin: process.env.CORS_ORIGIN || '*', // safer fallback
+  methods: ['GET', 'POST'],
+  credentials: false
 }));
 
 app.use(express.json());
@@ -43,10 +48,10 @@ app.get('/init-db', async (req, res) => {
     const buildSql = fs.readFileSync('./build.sql', 'utf-8');
     const pool = await sqlPoolPromise;
     await pool.request().batch(buildSql);
-    res.json({ message: 'Database initialized or already set up.' });
+    res.json({ message: '✅ Database initialized or already set up.' });
   } catch (error) {
-    console.error('DB init error:', error);
-    res.status(500).json({ error: 'Failed to initialize database.' });
+    console.error('❌ DB init error:', error);
+    res.status(500).json({ error: 'Failed to initialize database.', details: error.message });
   }
 });
 
@@ -63,8 +68,8 @@ app.get('/counter', async (req, res) => {
     }
     res.json({ count: result.recordset[0].count });
   } catch (error) {
-    console.error('Error fetching count:', error);
-    res.status(500).json({ error: 'Database error' });
+    console.error('❌ Error fetching count:', error);
+    res.status(500).json({ error: 'Database error', details: error.message });
   }
 });
 
@@ -75,15 +80,27 @@ app.get('/counter', async (req, res) => {
 app.post('/counter', async (req, res) => {
   try {
     const pool = await sqlPoolPromise;
-    await pool.request().query('UPDATE feed_counter SET count = count + 1 WHERE id = 1');
-    const result = await pool.request().query('SELECT count FROM feed_counter WHERE id = 1');
+
+    // Use a transaction to ensure atomicity
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+
+    const request = new sql.Request(transaction);
+    await request.query('UPDATE feed_counter SET count = count + 1 WHERE id = 1');
+    const result = await request.query('SELECT count FROM feed_counter WHERE id = 1');
+
+    await transaction.commit();
+
     res.json({ count: result.recordset[0].count });
   } catch (error) {
-    console.error('Error updating count:', error);
-    res.status(500).json({ error: 'Database error' });
+    console.error('❌ Error updating count:', error);
+    res.status(500).json({ error: 'Database error', details: error.message });
   }
 });
 
+/**
+ * Start the server
+ */
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
