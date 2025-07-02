@@ -3,10 +3,14 @@ const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // Use env PORT or default 3000
 const DB_PATH = './feeder.db';
 
-app.use(cors());
+// Enable CORS for your frontend domain
+app.use(cors({
+  origin: 'https://hongeee.xyz'  // Only allow requests from your frontend domain
+}));
+
 app.use(express.json());
 
 // Connect to SQLite DB
@@ -29,13 +33,12 @@ db.run(`
   }
 });
 
-// Ensure a row exists for counting
+// Initialize row if missing
 db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err, row) => {
   if (err) {
     console.error("Error checking existing counter:", err);
     return;
   }
-
   if (!row) {
     db.run(`INSERT INTO feed_counter (id, count) VALUES (1, 0)`, (err) => {
       if (err) console.error("Failed to initialize counter row:", err);
@@ -43,38 +46,35 @@ db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err, row) => {
   }
 });
 
-// GET current counter
+// GET current count
 app.get('/counter', (req, res) => {
   db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err, row) => {
     if (err) {
       console.error("Database read error:", err);
       return res.status(500).json({ error: 'Database error' });
     }
-
     res.json({ count: row.count });
   });
 });
 
-// POST to increment counter
+// POST increment count
 app.post('/counter', (req, res) => {
-  db.run(`UPDATE feed_counter SET count = count + 1 WHERE id = 1`, function (err) {
+  db.run(`UPDATE feed_counter SET count = count + 1 WHERE id = 1`, function(err) {
     if (err) {
       console.error("Database update error:", err);
       return res.status(500).json({ error: 'Database error' });
     }
-
     db.get(`SELECT count FROM feed_counter WHERE id = 1`, (err2, row) => {
       if (err2) {
         console.error("Database read error after increment:", err2);
         return res.status(500).json({ error: 'Database error' });
       }
-
       res.json({ count: row.count });
     });
   });
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`SQLite-powered Feeder API running at http://localhost:${PORT}`);
+// Listen on all interfaces (important for cloud hosting)
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`SQLite-powered Feeder API running on port ${PORT}`);
 });
