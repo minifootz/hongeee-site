@@ -1,66 +1,71 @@
 const API_BASE = "https://hongeee.xyz";
 
-let hunger = 0;
+let hunger = parseFloat(localStorage.getItem("hunger")) || 0;
 let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
+
 const hungerLabel = document.getElementById("hunger-label");
 const personalCounter = document.getElementById("personal-counter");
 const counterDisplay = document.getElementById("feed-counter");
+const feedButton = document.getElementById("feed-button");
+const fullscreenGif = document.getElementById("fullscreen-gif");
+const hungerBar = document.getElementById("hunger-bar");
 
-// Speech on load
-window.addEventListener('DOMContentLoaded', () => {
-  if ('speechSynthesis' in window) {
+// Speech synthesis on load
+window.addEventListener("DOMContentLoaded", () => {
+  if ("speechSynthesis" in window) {
     const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
     speechSynthesis.speak(speech);
   }
 });
 
-// Timer
-const startTime = new Date('2025-04-02T14:00:00').getTime();
+// Timer since start
+const startTime = new Date("2025-04-02T14:00:00").getTime();
 const timerElement = document.getElementById("timer");
 setInterval(() => {
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
   timerElement.textContent = `Time Dancing: ${elapsed}s`;
 }, 1000);
 
-// Music button
-document.getElementById('play-audio').addEventListener('click', () => {
-  document.getElementById('bg-music').play();
+// Music play button
+document.getElementById("play-audio").addEventListener("click", () => {
+  document.getElementById("bg-music").play();
 });
 
-// Global counter functions using YOUR BACKEND API
+// Fetch total feeds from server
 async function fetchInitialCounter() {
   try {
     const res = await fetch(`${API_BASE}/counter`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     counterDisplay.textContent = `Total Feeds: ${data.count}`;
   } catch (e) {
-    counterDisplay.textContent = "Total Feeds: Error";
+    counterDisplay.textContent = "Total Feeds: Server error";
     console.error("Initial feed counter error:", e);
   }
 }
 
+// Increment total feeds
 async function updateFeedCounter() {
   try {
-    const res = await fetch(`${API_BASE}/counter`, {
-      method: 'POST'
-    });
+    const res = await fetch(`${API_BASE}/counter`, { method: "POST" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     counterDisplay.textContent = `Total Feeds: ${data.count}`;
   } catch (e) {
-    counterDisplay.textContent = "Total Feeds: Error";
+    counterDisplay.textContent = "Total Feeds: Server error";
     console.error("Feed counter error:", e);
   }
 }
 
-// Personal counter
+// Update your personal feed counter
 function updatePersonalCounter() {
   personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
 }
 
-// Hunger bar
+// Update hunger bar and label
 function updateHungerDisplay() {
   hungerLabel.textContent = `Hunger: ${Math.round(hunger)}%`;
-  document.getElementById("hunger-bar").style.width = hunger + "%";
+  hungerBar.style.width = `${Math.min(hunger, 100)}%`;
 }
 
 // Emoji animation
@@ -69,8 +74,8 @@ function dropEmojis() {
     const emoji = document.createElement("div");
     emoji.textContent = "🍗";
     emoji.style.position = "fixed";
-    emoji.style.left = Math.random() * window.innerWidth + "px";
-    emoji.style.top = Math.random() * window.innerHeight + "px";
+    emoji.style.left = `${Math.random() * window.innerWidth}px`;
+    emoji.style.top = `${Math.random() * window.innerHeight}px`;
     emoji.style.fontSize = "2rem";
     emoji.style.zIndex = "9999";
     document.body.appendChild(emoji);
@@ -79,36 +84,46 @@ function dropEmojis() {
 }
 
 // Feed button click handler
-document.getElementById("feed-button").addEventListener("click", () => {
+feedButton.addEventListener("click", async () => {
+  // Disable button to prevent spamming
+  feedButton.disabled = true;
+
   // Show fullscreen GIF
-  document.getElementById("fullscreen-gif").style.display = "flex";
+  fullscreenGif.style.display = "flex";
   setTimeout(() => {
-    document.getElementById("fullscreen-gif").style.display = "none";
+    fullscreenGif.style.display = "none";
   }, 3000);
 
   // Emojis
   dropEmojis();
 
-  // Update counters
-  updateFeedCounter();
+  // Update backend counter
+  await updateFeedCounter();
+
+  // Update personal counter
   personalFeeds += 1;
   localStorage.setItem("myFeeds", personalFeeds);
   updatePersonalCounter();
 
   // Update hunger
-  hunger = Math.min(100, hunger + 100);
+  hunger = Math.min(100, hunger + 25);
   updateHungerDisplay();
+  localStorage.setItem("hunger", hunger);
+
+  // Re-enable button
+  feedButton.disabled = false;
 });
 
-// Hunger decay
+// Hunger decay every second
 setInterval(() => {
   if (hunger > 0) {
-    hunger = Math.max(0, hunger - 0.001);
+    hunger = Math.max(0, hunger - 1);
+    localStorage.setItem("hunger", hunger);
     updateHungerDisplay();
   }
-}, 100);
+}, 1000);
 
-// Init on load
+// Initialize
 window.addEventListener("load", () => {
   fetchInitialCounter();
   updatePersonalCounter();

@@ -2,17 +2,19 @@ require('dotenv').config();
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: 'https://hongeee.xyz'  // your frontend domain
+  origin: 'https://hongeee.xyz'
 }));
 
 app.use(express.json());
 
-const sqlConfig = {
+// SINGLE shared connection pool
+const sqlPoolPromise = new sql.ConnectionPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   server: process.env.DB_SERVER,
@@ -21,17 +23,26 @@ const sqlConfig = {
     encrypt: true,
     trustServerCertificate: true
   }
-};
+})
+  .connect()
+  .then(pool => {
+    console.log('✅ Connected to SQL Server');
+    return pool;
+  })
+  .catch(err => {
+    console.error('❌ Database connection failed:', err);
+    process.exit(1);
+  });
 
-// Endpoint to check and initialize database if needed
+/**
+ * GET /init-db
+ * Initialize the DB if needed
+ */
 app.get('/init-db', async (req, res) => {
   try {
-    const fs = require('fs');
     const buildSql = fs.readFileSync('./build.sql', 'utf-8');
-
-    await sql.connect(sqlConfig);
-    await sql.query(buildSql);
-
+    const pool = await sqlPoolPromise;
+    await pool.request().batch(buildSql);
     res.json({ message: 'Database initialized or already set up.' });
   } catch (error) {
     console.error('DB init error:', error);
@@ -39,11 +50,14 @@ app.get('/init-db', async (req, res) => {
   }
 });
 
-// GET counter
+/**
+ * GET /counter
+ * Return the current count
+ */
 app.get('/counter', async (req, res) => {
   try {
-    await sql.connect(sqlConfig);
-    const result = await sql.query`SELECT count FROM feed_counter WHERE id = 1`;
+    const pool = await sqlPoolPromise;
+    const result = await pool.request().query('SELECT count FROM feed_counter WHERE id = 1');
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'Counter record not found' });
     }
@@ -54,12 +68,15 @@ app.get('/counter', async (req, res) => {
   }
 });
 
-// POST increment counter
+/**
+ * POST /counter
+ * Increment and return the updated count
+ */
 app.post('/counter', async (req, res) => {
   try {
-    await sql.connect(sqlConfig);
-    await sql.query`UPDATE feed_counter SET count = count + 1 WHERE id = 1`;
-    const result = await sql.query`SELECT count FROM feed_counter WHERE id = 1`;
+    const pool = await sqlPoolPromise;
+    await pool.request().query('UPDATE feed_counter SET count = count + 1 WHERE id = 1');
+    const result = await pool.request().query('SELECT count FROM feed_counter WHERE id = 1');
     res.json({ count: result.recordset[0].count });
   } catch (error) {
     console.error('Error updating count:', error);
@@ -68,5 +85,5 @@ app.post('/counter', async (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });

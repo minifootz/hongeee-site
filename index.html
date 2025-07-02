@@ -1,41 +1,53 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>Feelin' Hungry?</title>
   <link rel="stylesheet" href="index.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Preload audio for smoother playback -->
+  <link rel="preload" as="audio" href="Swing Machine Kevin MacLeod.mp3" type="audio/mpeg">
 </head>
 <body>
-  <h1> Feeling HONGEEE? </h1>
+  <h1>Feeling HONGEEE?</h1>
 
-  <audio id="bg-music" autoplay loop>
+  <!-- Background music -->
+  <audio id="bg-music" loop>
     <source src="Swing Machine Kevin MacLeod.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
   </audio>
 
+  <!-- Timer -->
   <div id="timer">Time Dancing: 0s</div>
 
+  <!-- Animated images -->
   <div class="image-container">
-    <img src="driftveil.gif" alt="Image 1">
-    <img src="driftveil.gif" alt="Image 2">
-    <img src="driftveil.gif" alt="Big Image" class="large-image">
+    <img src="driftveil.gif" alt="Driftveil 1">
+    <img src="driftveil.gif" alt="Driftveil 2">
+    <img src="driftveil.gif" alt="Big Driftveil" class="large-image">
   </div>
 
+  <!-- Hunger bar UI -->
   <div id="hunger-bar-container">
     <div id="hunger-bar"></div>
   </div>
-
   <div id="hunger-label">Hunger: 0%</div>
 
+  <!-- Buttons -->
   <button id="feed-button">FEED ME!</button>  
   <button id="play-audio">Play Audio</button>
 
-  <div id="fullscreen-gif">
+  <!-- Fullscreen gif on feed -->
+  <div id="fullscreen-gif" style="display: none;">
     <img src="thootless-scream.gif" alt="Feeding Time!">
   </div>
 
+  <!-- Feed counters -->
   <div id="personal-counter">Your Feeds: 0</div>
   <div id="feed-counter">Total Feeds: 0</div>
 
-  <script src="index.js"></script>
+  <!-- Script at end for better performance -->
+  <script src="index.js" defer></script>
 </body>
 </html>
