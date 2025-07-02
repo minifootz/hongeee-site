@@ -114,14 +114,14 @@ feedButton.addEventListener("click", async () => {
   feedButton.disabled = false;
 });
 
-// Hunger decay every second
+// Hunger decay every 100ms for smoother animation
 setInterval(() => {
   if (hunger > 0) {
-    hunger = Math.max(0, hunger - 1);
+    hunger = Math.max(0, hunger - 0.1);
     localStorage.setItem("hunger", hunger);
     updateHungerDisplay();
   }
-}, 1000);
+}, 100);
 
 // Initialize
 window.addEventListener("load", () => {
