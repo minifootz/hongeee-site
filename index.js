@@ -3,9 +3,6 @@ let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
 const hungerLabel = document.getElementById("hunger-label");
 const personalCounter = document.getElementById("personal-counter");
 const counterDisplay = document.getElementById("feed-counter");
-const namespace = "hongree-feeder";
-const key = "feed-me";
-
 
 // Speech on load
 window.addEventListener('DOMContentLoaded', () => {
@@ -28,38 +25,43 @@ document.getElementById('play-audio').addEventListener('click', () => {
   document.getElementById('bg-music').play();
 });
 
-// Global counter
-async function updateFeedCounter() {
-  try {
-    const res = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
-    const data = await res.json();
-    counterDisplay.textContent = `Total Feeds: ${data.value}`;
-  } catch (e) {
-    counterDisplay.textContent = "Total Feeds: Error";
-    console.error("Feed counter error:", e);
-  }
-}
-
+// Global counter functions using YOUR BACKEND API
 async function fetchInitialCounter() {
   try {
-    const res = await fetch(`https://api.countapi.xyz/get/${namespace}/${key}`);
+    const res = await fetch('http://localhost:3000/counter');
     const data = await res.json();
-    counterDisplay.textContent = `Total Feeds: ${data.value}`;
+    counterDisplay.textContent = `Total Feeds: ${data.count}`;
   } catch (e) {
     counterDisplay.textContent = "Total Feeds: Error";
     console.error("Initial feed counter error:", e);
   }
 }
 
+async function updateFeedCounter() {
+  try {
+    const res = await fetch('http://localhost:3000/counter', {
+      method: 'POST'
+    });
+    const data = await res.json();
+    counterDisplay.textContent = `Total Feeds: ${data.count}`;
+  } catch (e) {
+    counterDisplay.textContent = "Total Feeds: Error";
+    console.error("Feed counter error:", e);
+  }
+}
+
+// Personal counter
 function updatePersonalCounter() {
   personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
 }
 
+// Hunger bar
 function updateHungerDisplay() {
   hungerLabel.textContent = `Hunger: ${Math.round(hunger)}%`;
   document.getElementById("hunger-bar").style.width = hunger + "%";
 }
 
+// Emoji animation
 function dropEmojis() {
   for (let i = 0; i < 30; i++) {
     const emoji = document.createElement("div");
@@ -74,19 +76,24 @@ function dropEmojis() {
   }
 }
 
+// Feed button click handler
 document.getElementById("feed-button").addEventListener("click", () => {
+  // Show fullscreen GIF
   document.getElementById("fullscreen-gif").style.display = "flex";
   setTimeout(() => {
     document.getElementById("fullscreen-gif").style.display = "none";
   }, 3000);
 
+  // Emojis
   dropEmojis();
 
+  // Update counters
   updateFeedCounter();
   personalFeeds += 1;
   localStorage.setItem("myFeeds", personalFeeds);
   updatePersonalCounter();
 
+  // Update hunger
   hunger = Math.min(100, hunger + 100);
   updateHungerDisplay();
 });
