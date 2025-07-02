@@ -1,7 +1,4 @@
-// server.js
-
-require('dotenv').config();   // Load variables from .env file (optional)
-
+require('dotenv').config();
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
@@ -9,26 +6,40 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS - adjust origin to your frontend domain
 app.use(cors({
-  origin: 'https://hongeee.xyz'  // Replace with your frontend domain
+  origin: 'https://hongeee.xyz'  // your frontend domain
 }));
 
 app.use(express.json());
 
-// SQL Server config from environment variables
 const sqlConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
   options: {
-    encrypt: true,                 // true if using Azure SQL or encrypted connection
-    trustServerCertificate: true  // false in production with valid certs
+    encrypt: true,
+    trustServerCertificate: true
   }
 };
 
-// GET feed count
+// Endpoint to check and initialize database if needed
+app.get('/init-db', async (req, res) => {
+  try {
+    const fs = require('fs');
+    const buildSql = fs.readFileSync('./build.sql', 'utf-8');
+
+    await sql.connect(sqlConfig);
+    await sql.query(buildSql);
+
+    res.json({ message: 'Database initialized or already set up.' });
+  } catch (error) {
+    console.error('DB init error:', error);
+    res.status(500).json({ error: 'Failed to initialize database.' });
+  }
+});
+
+// GET counter
 app.get('/counter', async (req, res) => {
   try {
     await sql.connect(sqlConfig);
@@ -43,7 +54,7 @@ app.get('/counter', async (req, res) => {
   }
 });
 
-// POST increment count
+// POST increment counter
 app.post('/counter', async (req, res) => {
   try {
     await sql.connect(sqlConfig);
@@ -56,7 +67,6 @@ app.post('/counter', async (req, res) => {
   }
 });
 
-// Listen on all interfaces
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
