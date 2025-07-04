@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
-
 const fs = require('fs');
 
 const app = express();
@@ -10,9 +9,9 @@ const app = express();
 // Use PORT from .env or default to 3000
 const PORT = process.env.PORT || 3000;
 
-// CORS configuration (adjust as needed)
+// CORS configuration (allow any origin, adjust if needed)
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*', // safer fallback
+  origin: '*',
   methods: ['GET', 'POST'],
   credentials: false
 }));
@@ -61,14 +60,15 @@ app.get('/init-db', async (req, res) => {
  * Fetch the current Feed_Num
  */
 app.get('/Feed_Num', async (req, res) => {
-  const pool = await sqlPoolPromise;
   try {
+    const pool = await sqlPoolPromise;
     const result = await pool.request().query('SELECT Feed_Num FROM feeder WHERE feedID = 1');
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'Counter record not found' });
     }
     res.json({ Feed_Num: result.recordset[0].Feed_Num });
   } catch (error) {
+    console.error('❌ Error fetching Feed_Num:', error);
     res.status(500).json({ error: 'Database error', details: error.message });
   }
 });
@@ -89,6 +89,7 @@ app.post('/Feed_Num', async (req, res) => {
     res.json({ Feed_Num: result.recordset[0].Feed_Num });
   } catch (error) {
     await transaction.rollback();
+    console.error('❌ Error updating Feed_Num:', error);
     res.status(500).json({ error: 'Database error', details: error.message });
   }
 });
