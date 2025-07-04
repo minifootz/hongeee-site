@@ -55,42 +55,43 @@ app.get('/init-db', async (req, res) => {
   }
 });
 
-
-
 /**
- * POST /counter
- * Increment and return the updated count
+ * GET /Feed_Num
+ * Fetch the current Feed_Num
  */
-// Alias for backward compatibility
 app.get('/Feed_Num', async (req, res) => {
-  // Reuse the /counter logic
   const pool = await sqlPoolPromise;
   try {
-    const result = await pool.request().query('SELECT count FROM feeder WHERE id = 1');
+    const result = await pool.request().query('SELECT Feed_Num FROM feeder WHERE id = 1');
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'Counter record not found' });
     }
-    res.json({ count: result.recordset[0].count });
+    res.json({ Feed_Num: result.recordset[0].Feed_Num });
   } catch (error) {
     res.status(500).json({ error: 'Database error', details: error.message });
   }
 });
 
+/**
+ * POST /Feed_Num
+ * Increment and return the updated Feed_Num
+ */
 app.post('/Feed_Num', async (req, res) => {
   const pool = await sqlPoolPromise;
   const transaction = new sql.Transaction(pool);
   try {
     await transaction.begin();
     const request = new sql.Request(transaction);
-    await request.query('UPDATE feeder SET count = count + 1 WHERE id = 1');
-    const result = await request.query('SELECT count FROM feeder WHERE id = 1');
+    await request.query('UPDATE feeder SET Feed_Num = Feed_Num + 1 WHERE id = 1');
+    const result = await request.query('SELECT Feed_Num FROM feeder WHERE id = 1');
     await transaction.commit();
-    res.json({ count: result.recordset[0].count });
+    res.json({ Feed_Num: result.recordset[0].Feed_Num });
   } catch (error) {
     await transaction.rollback();
     res.status(500).json({ error: 'Database error', details: error.message });
   }
 });
+
 /**
  * Start the server
  */
