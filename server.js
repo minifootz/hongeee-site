@@ -62,7 +62,7 @@ app.get('/init-db', async (req, res) => {
 app.get('/Feed_Num', async (req, res) => {
   const pool = await sqlPoolPromise;
   try {
-    const result = await pool.request().query('SELECT Feed_Num FROM feeder WHERE id = 1');
+    const result = await pool.request().query('SELECT Feed_Num FROM feeder WHERE feedID = 1');
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'Counter record not found' });
     }
@@ -82,8 +82,8 @@ app.post('/Feed_Num', async (req, res) => {
   try {
     await transaction.begin();
     const request = new sql.Request(transaction);
-    await request.query('UPDATE feeder SET Feed_Num = Feed_Num + 1 WHERE id = 1');
-    const result = await request.query('SELECT Feed_Num FROM feeder WHERE id = 1');
+    await request.query('UPDATE feeder SET Feed_Num = Feed_Num + 1 WHERE feedID = 1');
+    const result = await request.query('SELECT Feed_Num FROM feeder WHERE feedID = 1');
     await transaction.commit();
     res.json({ Feed_Num: result.recordset[0].Feed_Num });
   } catch (error) {
