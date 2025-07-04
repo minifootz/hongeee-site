@@ -31,7 +31,6 @@ document.getElementById("play-audio").addEventListener("click", () => {
   document.getElementById("bg-music").play();
 });
 
-const API_BASE = "https://hongeee.xyz"; // Remove /counter
 
 // Fetch total feeds from server
 async function fetchInitialCounter() {
