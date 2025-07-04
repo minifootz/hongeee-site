@@ -35,7 +35,7 @@ document.getElementById("play-audio").addEventListener("click", () => {
 // Fetch total feeds from server
 async function fetchInitialCounter() {
   try {
-    const res = await fetch(`${API_BASE}/Feed_Num`);
+    const res = await fetch(`http://localhost:3000/Feed_Num`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     counterDisplay.textContent = `Total Feeds: ${data.Feed_Num}`; // <-- CHANGED
