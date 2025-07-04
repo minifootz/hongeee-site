@@ -59,7 +59,7 @@ app.get('/init-db', async (req, res) => {
  * GET /counter
  * Return the current count
  */
-app.get('/counter', async (req, res) => {
+app.get('/Feed_Num', async (req, res) => {
   try {
     const pool = await sqlPoolPromise;
     const result = await pool.request().query('SELECT count FROM feed_counter WHERE id = 1');
