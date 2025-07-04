@@ -1,7 +1,4 @@
-const API_BASE =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3000"
-    : "https://hongeee.xyz";
+const API_BASE = "https://hongeee.xyz";
 
 let hunger = parseFloat(localStorage.getItem("hunger")) || 0;
 let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
