@@ -1,4 +1,4 @@
-const API_BASE = "https://hongeee.xyz/counter";
+const API_BASE = "https://hongeee.xyz";
 
 let hunger = parseFloat(localStorage.getItem("hunger")) || 0;
 let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
@@ -31,13 +31,15 @@ document.getElementById("play-audio").addEventListener("click", () => {
   document.getElementById("bg-music").play();
 });
 
+const API_BASE = "https://hongeee.xyz"; // Remove /counter
+
 // Fetch total feeds from server
 async function fetchInitialCounter() {
   try {
-    const res = await fetch(`${API_BASE}/counter`);
+    const res = await fetch(`${API_BASE}/Feed_Num`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    counterDisplay.textContent = `Total Feeds: ${data.count}`;
+    counterDisplay.textContent = `Total Feeds: ${data.Feed_Num}`; // <-- CHANGED
   } catch (e) {
     counterDisplay.textContent = "Total Feeds: Server error";
     console.error("Initial feed counter error:", e);
@@ -47,10 +49,10 @@ async function fetchInitialCounter() {
 // Increment total feeds
 async function updateFeedCounter() {
   try {
-    const res = await fetch(`${API_BASE}/counter`, { method: "POST" });
+    const res = await fetch(`${API_BASE}/Feed_Num`, { method: "POST" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    counterDisplay.textContent = `Total Feeds: ${data.count}`;
+    counterDisplay.textContent = `Total Feeds: ${data.Feed_Num}`; // <-- CHANGED
   } catch (e) {
     counterDisplay.textContent = "Total Feeds: Server error";
     console.error("Feed counter error:", e);
