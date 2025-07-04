@@ -55,23 +55,7 @@ app.get('/init-db', async (req, res) => {
   }
 });
 
-/**
- * GET /counter
- * Return the current count
- */
-app.get('/Feed_Num', async (req, res) => {
-  try {
-    const pool = await sqlPoolPromise;
-    const result = await pool.request().query('SELECT count FROM feed_counter WHERE id = 1');
-    if (result.recordset.length === 0) {
-      return res.status(404).json({ error: 'Counter record not found' });
-    }
-    res.json({ count: result.recordset[0].count });
-  } catch (error) {
-    console.error('❌ Error fetching count:', error);
-    res.status(500).json({ error: 'Database error', details: error.message });
-  }
-});
+
 
 /**
  * POST /counter
