@@ -66,7 +66,7 @@ app.get('/Feed_Num', async (req, res) => {
   // Reuse the /counter logic
   const pool = await sqlPoolPromise;
   try {
-    const result = await pool.request().query('SELECT count FROM feed_counter WHERE id = 1');
+    const result = await pool.request().query('SELECT count FROM feeder WHERE id = 1');
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'Counter record not found' });
     }
@@ -82,8 +82,8 @@ app.post('/Feed_Num', async (req, res) => {
   try {
     await transaction.begin();
     const request = new sql.Request(transaction);
-    await request.query('UPDATE feed_counter SET count = count + 1 WHERE id = 1');
-    const result = await request.query('SELECT count FROM feed_counter WHERE id = 1');
+    await request.query('UPDATE feeder SET count = count + 1 WHERE id = 1');
+    const result = await request.query('SELECT count FROM feeder WHERE id = 1');
     await transaction.commit();
     res.json({ count: result.recordset[0].count });
   } catch (error) {
