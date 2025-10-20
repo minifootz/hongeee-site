@@ -1,43 +1,19 @@
 require('dotenv').config();
 const express = require('express');
-const sql = require('mssql');
 const cors = require('cors');
 const fs = require('fs');
+const { sql, poolPromise } = require('./db'); // <-- import pool from db.js
 
 const app = express();
-
-// Use PORT from .env or default to 3000
 const PORT = process.env.PORT || 3000;
 
-// CORS configuration (allow any origin, adjust if needed)
 app.use(cors({
-  origin: '*',
+  origin: '*', // adjust to your GitHub Pages URL in production
   methods: ['GET', 'POST'],
   credentials: false
 }));
 
 app.use(express.json());
-
-// SINGLE shared connection pool
-const sqlPoolPromise = new sql.ConnectionPool({
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  server: process.env.DB_SERVER,
-  database: process.env.DB_NAME,
-  options: {
-    encrypt: true,
-    trustServerCertificate: true
-  }
-})
-  .connect()
-  .then(pool => {
-    console.log('✅ Connected to SQL Server');
-    return pool;
-  })
-  .catch(err => {
-    console.error('❌ Database connection failed:', err);
-    process.exit(1);
-  });
 
 /**
  * GET /init-db
@@ -46,7 +22,7 @@ const sqlPoolPromise = new sql.ConnectionPool({
 app.get('/init-db', async (req, res) => {
   try {
     const buildSql = fs.readFileSync('./build.sql', 'utf-8');
-    const pool = await sqlPoolPromise;
+    const pool = await poolPromise;
     await pool.request().batch(buildSql);
     res.json({ message: '✅ Database initialized or already set up.' });
   } catch (error) {
@@ -61,7 +37,7 @@ app.get('/init-db', async (req, res) => {
  */
 app.get('/Feed_Num', async (req, res) => {
   try {
-    const pool = await sqlPoolPromise;
+    const pool = await poolPromise;
     const result = await pool.request().query('SELECT Feed_Num FROM feeder WHERE feedID = 1');
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'Counter record not found' });
@@ -78,7 +54,7 @@ app.get('/Feed_Num', async (req, res) => {
  * Increment and return the updated Feed_Num
  */
 app.post('/Feed_Num', async (req, res) => {
-  const pool = await sqlPoolPromise;
+  const pool = await poolPromise;
   const transaction = new sql.Transaction(pool);
   try {
     await transaction.begin();
