@@ -153,3 +153,95 @@ window.addEventListener("load", () => {
   updatePersonalCounter();
   updateHungerDisplay();
 });
+
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const { sql, poolPromise } = require('./db');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST'],
+  credentials: false
+}));
+
+app.use(express.json());
+
+/**
+ * GET /init-db
+ */
+app.get('/init-db', async (req, res) => {
+  try {
+    const buildSql = fs.readFileSync('./build.sql', 'utf-8');
+    const pool = await poolPromise;
+    await pool.request().batch(buildSql);
+    res.json({ message: '✅ Database initialized.' });
+  } catch (err) {
+    console.error('❌ init-db error:', err);
+    res.status(500).json({ error: 'DB init failed' });
+  }
+});
+
+/**
+ * GET /Feed_Num
+ */
+app.get('/Feed_Num', async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool
+      .request()
+      .query('SELECT Feed_Num FROM feeder WHERE feedID = 1');
+
+    if (!result.recordset.length) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    res.json({ Feed_Num: result.recordset[0].Feed_Num });
+  } catch (err) {
+    console.error('❌ GET /Feed_Num error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+/**
+ * POST /Feed_Num
+ */
+app.post('/Feed_Num', async (req, res) => {
+  const pool = await poolPromise;
+  const transaction = new sql.Transaction(pool);
+
+  try {
+    await transaction.begin();
+    const request = new sql.Request(transaction);
+
+    await request.query(`
+      IF EXISTS (SELECT 1 FROM feeder WHERE feedID = 1)
+        UPDATE feeder SET Feed_Num = Feed_Num + 1 WHERE feedID = 1
+      ELSE
+        INSERT INTO feeder (feedID, Feed_Num) VALUES (1, 1)
+    `);
+
+    const result = await request.query(
+      'SELECT Feed_Num FROM feeder WHERE feedID = 1'
+    );
+
+    await transaction.commit();
+    res.json({ Feed_Num: result.recordset[0].Feed_Num });
+  } catch (err) {
+    await transaction.rollback();
+    console.error('❌ POST /Feed_Num error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+/**
+ * START SERVER
+ */
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
+
