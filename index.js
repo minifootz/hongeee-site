@@ -1,10 +1,11 @@
-const API_BASE = "https://hongeee.xyz";
+// ===== CONFIG =====
+const API_BASE = "https://fancy-scene-1c4e.jackdonlevy.workers.dev"; // KV Worker URL
 
-// Retrieve saved values or set defaults
+// ===== STATE =====
 let hunger = parseFloat(localStorage.getItem("hunger")) || 0;
 let personalFeeds = parseInt(localStorage.getItem("myFeeds") || "0");
 
-// Get DOM elements
+// ===== DOM ELEMENTS =====
 const hungerLabel = document.getElementById("hunger-label");
 const personalCounter = document.getElementById("personal-counter");
 const counterDisplay = document.getElementById("feed-counter");
@@ -15,7 +16,7 @@ const timerElement = document.getElementById("timer");
 const playAudioBtn = document.getElementById("play-audio");
 const bgMusic = document.getElementById("bg-music");
 
-// Speech synthesis on load
+// ===== SPEECH SYNTHESIS =====
 window.addEventListener("DOMContentLoaded", () => {
   if ("speechSynthesis" in window) {
     const speech = new SpeechSynthesisUtterance("Feeling HONGEEE?");
@@ -23,7 +24,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Timer since start
+// ===== TIMER =====
 const startTime = new Date("2025-04-02T14:00:00").getTime();
 if (timerElement) {
   setInterval(() => {
@@ -32,65 +33,48 @@ if (timerElement) {
   }, 1000);
 }
 
-// Music play button
+// ===== AUDIO PLAY BUTTON =====
 if (playAudioBtn && bgMusic) {
   playAudioBtn.addEventListener("click", () => {
     bgMusic.play();
   });
 }
 
-// Fetch total feeds from server
-async function fetchInitialCounter() {
+// ===== KV GLOBAL COUNTER =====
+async function fetchTotalFeeds() {
   try {
-    const res = await fetch(`${API_BASE}/Feed_Num`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch(`${API_BASE}/get`);
     const data = await res.json();
-    if (counterDisplay) {
-      counterDisplay.textContent = `Total Feeds: ${data.Feed_Num}`;
-    }
-  } catch (e) {
-    if (counterDisplay) {
-      counterDisplay.textContent = "Total Feeds: Server error";
-    }
-    console.error("Initial feed counter error:", e);
+    if (counterDisplay) counterDisplay.textContent = `Total Feeds: ${data.count}`;
+  } catch (err) {
+    console.error("Error fetching total feeds:", err);
+    if (counterDisplay) counterDisplay.textContent = "Total Feeds: Error";
   }
 }
 
-// Increment total feeds
-async function updateFeedCounter() {
+async function incrementTotalFeeds() {
   try {
-    const res = await fetch(`${API_BASE}/Feed_Num`, { method: "POST" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch(`${API_BASE}/inc`, { method: "POST" });
     const data = await res.json();
-    if (counterDisplay) {
-      counterDisplay.textContent = `Total Feeds: ${data.Feed_Num}`;
-    }
-  } catch (e) {
-    if (counterDisplay) {
-      counterDisplay.textContent = "Total Feeds: Server error";
-    }
-    console.error("Feed counter error:", e);
+    if (counterDisplay) counterDisplay.textContent = `Total Feeds: ${data.count}`;
+  } catch (err) {
+    console.error("Error incrementing total feeds:", err);
+    if (counterDisplay) counterDisplay.textContent = "Total Feeds: Error";
   }
 }
 
-// Update your personal feed counter
+// ===== PERSONAL COUNTER =====
 function updatePersonalCounter() {
-  if (personalCounter) {
-    personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
-  }
+  if (personalCounter) personalCounter.textContent = `Your Feeds: ${personalFeeds}`;
 }
 
-// Update hunger bar and label
+// ===== HUNGER BAR =====
 function updateHungerDisplay() {
-  if (hungerLabel) {
-    hungerLabel.textContent = `Hunger: ${Math.round(hunger)}%`;
-  }
-  if (hungerBar) {
-    hungerBar.style.width = `${Math.min(hunger, 100)}%`;
-  }
+  if (hungerLabel) hungerLabel.textContent = `Hunger: ${Math.round(hunger)}%`;
+  if (hungerBar) hungerBar.style.width = `${Math.min(hunger, 100)}%`;
 }
 
-// Emoji animation
+// ===== EMOJI ANIMATION =====
 function dropEmojis() {
   for (let i = 0; i < 30; i++) {
     const emoji = document.createElement("div");
@@ -105,40 +89,36 @@ function dropEmojis() {
   }
 }
 
-// Feed button click handler
+// ===== FEED BUTTON =====
 if (feedButton && fullscreenGif) {
   feedButton.addEventListener("click", async () => {
-    // Disable button to prevent spamming
     feedButton.disabled = true;
 
     // Show fullscreen GIF
     fullscreenGif.style.display = "flex";
-    setTimeout(() => {
-      fullscreenGif.style.display = "none";
-    }, 3000);
+    setTimeout(() => (fullscreenGif.style.display = "none"), 3000);
 
-    // Emojis
+    // Drop emojis
     dropEmojis();
 
-    // Update backend counter
-    await updateFeedCounter();
+    // Update global feed counter
+    await incrementTotalFeeds();
 
-    // Update personal counter
-    personalFeeds += 1;
+    // Update personal feed counter
+    personalFeeds++;
     localStorage.setItem("myFeeds", personalFeeds);
     updatePersonalCounter();
 
     // Update hunger
     hunger = Math.min(100, hunger + 25);
-    updateHungerDisplay();
     localStorage.setItem("hunger", hunger);
+    updateHungerDisplay();
 
-    // Re-enable button
     feedButton.disabled = false;
   });
 }
 
-// Hunger decay every 100ms for smoother animation
+// ===== HUNGER DECAY =====
 setInterval(() => {
   if (hunger > 0) {
     hunger = Math.max(0, hunger - 0.1);
@@ -147,101 +127,9 @@ setInterval(() => {
   }
 }, 100);
 
-// Initialize
+// ===== INITIALIZE =====
 window.addEventListener("load", () => {
-  fetchInitialCounter();
+  fetchTotalFeeds();
   updatePersonalCounter();
   updateHungerDisplay();
 });
-
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const { sql, poolPromise } = require('./db');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST'],
-  credentials: false
-}));
-
-app.use(express.json());
-
-/**
- * GET /init-db
- */
-app.get('/init-db', async (req, res) => {
-  try {
-    const buildSql = fs.readFileSync('./build.sql', 'utf-8');
-    const pool = await poolPromise;
-    await pool.request().batch(buildSql);
-    res.json({ message: '✅ Database initialized.' });
-  } catch (err) {
-    console.error('❌ init-db error:', err);
-    res.status(500).json({ error: 'DB init failed' });
-  }
-});
-
-/**
- * GET /Feed_Num
- */
-app.get('/Feed_Num', async (req, res) => {
-  try {
-    const pool = await poolPromise;
-    const result = await pool
-      .request()
-      .query('SELECT Feed_Num FROM feeder WHERE feedID = 1');
-
-    if (!result.recordset.length) {
-      return res.status(404).json({ error: 'Record not found' });
-    }
-
-    res.json({ Feed_Num: result.recordset[0].Feed_Num });
-  } catch (err) {
-    console.error('❌ GET /Feed_Num error:', err);
-    res.status(500).json({ error: 'Database error' });
-  }
-});
-
-/**
- * POST /Feed_Num
- */
-app.post('/Feed_Num', async (req, res) => {
-  const pool = await poolPromise;
-  const transaction = new sql.Transaction(pool);
-
-  try {
-    await transaction.begin();
-    const request = new sql.Request(transaction);
-
-    await request.query(`
-      IF EXISTS (SELECT 1 FROM feeder WHERE feedID = 1)
-        UPDATE feeder SET Feed_Num = Feed_Num + 1 WHERE feedID = 1
-      ELSE
-        INSERT INTO feeder (feedID, Feed_Num) VALUES (1, 1)
-    `);
-
-    const result = await request.query(
-      'SELECT Feed_Num FROM feeder WHERE feedID = 1'
-    );
-
-    await transaction.commit();
-    res.json({ Feed_Num: result.recordset[0].Feed_Num });
-  } catch (err) {
-    await transaction.rollback();
-    console.error('❌ POST /Feed_Num error:', err);
-    res.status(500).json({ error: 'Database error' });
-  }
-});
-
-/**
- * START SERVER
- */
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
-
