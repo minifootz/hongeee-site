@@ -1,7 +1,10 @@
-CREATE TABLE IF NOT EXISTS feeder(
-  feedID INT PRIMARY KEY,
-  Feed_Num INT NOT NULL
-);
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'feeder')
+BEGIN
+  CREATE TABLE feeder (
+    feedID INT PRIMARY KEY,
+    Feed_Num INT NOT NULL
+  );
 
-IF NOT EXISTS (SELECT 1 FROM feeder WHERE id = 1)
-  INSERT INTO feeder (FeedID, Feed_Num) VALUES (1, 0);
+  INSERT INTO feeder (feedID, Feed_Num)
+  VALUES (1, 0);
+END;
