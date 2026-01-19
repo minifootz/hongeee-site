@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const API_BASE = "https://fancy-scene-1c4e.jackdonlevy.workers.dev"; // KV Worker URL
+const API_BASE = "https://fancy-scene-1c4e.jackdonlevy.workers.dev"; // Cloudflare Worker KV URL
 
 // ===== STATE =====
 let hunger = parseFloat(localStorage.getItem("hunger")) || 0;
