@@ -7,8 +7,8 @@ const config = {
   server: process.env.DB_SERVER,
   database: process.env.DB_DATABASE,
   options: {
-    encrypt: process.env.DB_ENCRYPT === "true",
-    trustServerCertificate: true // useful for local dev
+    encrypt: process.env.DB_ENCRYPT === 'true',
+    trustServerCertificate: true
   }
 };
 
@@ -23,20 +23,4 @@ const poolPromise = new sql.ConnectionPool(config)
     process.exit(1);
   });
 
-module.exports = {
-  sql, poolPromise
-};
-
-const { poolPromise } = require('./db');
-
-app.get('/Feed_Num', async (req, res) => {
-  try {
-    const pool = await poolPromise;
-    const result = await pool.request().query('SELECT Feed_Num FROM feeder WHERE feedID = 1');
-    res.json({ Feed_Num: result.recordset[0].Feed_Num });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
+module.exports = { sql, poolPromise };
